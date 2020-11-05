@@ -1,0 +1,20 @@
+{
+  "name": "shattercms",
+  "private": true,
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shattercms/shattercms.git"
+  },
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "lerna run build",
+    "test": "lerna run test"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
