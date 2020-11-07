@@ -17,7 +17,7 @@ export interface GatewayOptions {
 }
 const defaultOptions: GatewayOptions = {
   modules: [],
-  addPrefixes: true,
+  addPrefixes: false,
 };
 
 export class Gateway {
@@ -41,6 +41,7 @@ export class Gateway {
         resolvers: module.resolvers as any,
       });
 
+      /*
       const addPrefix =
         // Add prefix if boolean is 'true'
         this.options.addPrefixes === true ||
@@ -57,9 +58,11 @@ export class Gateway {
             new RenameRootFields(
               (_, name) => `${module.name.toLowerCase()}_${name}`
             ),
+            // TODO: Rename Directives
           ],
         });
       }
+      */
 
       schemas.push(schema);
       entities.push(...module.entities);
