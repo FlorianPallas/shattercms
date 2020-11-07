@@ -1,0 +1,12 @@
+{
+  "name": "basic",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node dist",
+    "dev": "ts-node src",
+    "build": "tsc",
+    "build:watch": "tsc -w"
+  }
+}
