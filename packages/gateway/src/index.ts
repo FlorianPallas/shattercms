@@ -13,10 +13,12 @@ import { Module, Entity } from '@shattercms/types';
 
 export interface GatewayOptions {
   modules: Module[];
+  config: { [key: string]: any };
   addPrefixes: boolean | string[];
 }
 const defaultOptions: GatewayOptions = {
   modules: [],
+  config: {},
   addPrefixes: false,
 };
 
@@ -86,7 +88,7 @@ export class Gateway {
         schemas,
         throwOnConflict: true,
       }),
-      context: ({ req, res }) => ({ req, res }),
+      context: ({ req, res }) => ({ req, res, config: this.options.config }),
     });
 
     // Set GraphQL endpoint

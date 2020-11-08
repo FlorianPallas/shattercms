@@ -7,3 +7,9 @@ export interface Module {
   entities: Array<Entity>;
   resolvers: Array<Function>;
 }
+
+export interface Context {
+  req: Request;
+  res: Response;
+  config: { [key: string]: any };
+}
