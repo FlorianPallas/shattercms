@@ -58,11 +58,13 @@ export class PageResolver {
   }
 
   @FieldResolver()
-  shards(@Root() shards: Shard[]): Promise<Shard[]> {
-    return getManager()
+  async shards(@Root() shards: Shard[]): Promise<Shard[]> {
+    const items: Shard[] = await getManager()
       .createQueryBuilder()
       .relation(Page, 'shards')
       .of(shards)
       .loadMany();
+    items.sort((a, b) => a.order - b.order);
+    return items;
   }
 }
