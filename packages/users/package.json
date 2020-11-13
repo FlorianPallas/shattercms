@@ -1,5 +1,5 @@
 {
-  "name": "@shattercms/types",
+  "name": "@shattercms/users",
   "version": "0.0.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -12,10 +12,14 @@
     "access": "public"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.14.3",
-    "typeorm": "^0.2.29",
-    "typescript": "^4.0.3",
-    "apollo-server-express": "^2.19.0"
+    "typescript": "^4.0.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "argon2": "^0.27.0",
+    "jsonwebtoken": "^8.5.1",
+    "type-graphql": "^1.1.0",
+    "typeorm": "^0.2.28"
+  }
 }

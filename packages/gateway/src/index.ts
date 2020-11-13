@@ -1,7 +1,7 @@
 import express from 'express';
 import { ConnectionOptions, createConnection } from 'typeorm';
 import { buildSchema } from 'type-graphql';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
 import { GraphQLSchema } from 'graphql';
 import {
   mergeSchemas,
@@ -36,6 +36,7 @@ export class Gateway {
     // Build modules
     const schemas: GraphQLSchema[] = [];
     const entities: Entity[] = [];
+    let directives = {};
 
     for (const module of this.options.modules) {
       // Build schema
@@ -68,10 +69,19 @@ export class Gateway {
 
       schemas.push(schema);
       entities.push(...module.entities);
+      directives = {
+        ...directives,
+        ...module.directives,
+      };
     }
 
-    // Connect to database
-    await createConnection({
+    // Register directives
+    schemas.forEach((schema) => {
+      SchemaDirectiveVisitor.visitSchemaDirectives(schema, directives);
+    });
+
+    // Create database connection
+    const orm = await createConnection({
       name: 'default',
       database: 'cms',
       type: 'postgres',
@@ -88,7 +98,12 @@ export class Gateway {
         schemas,
         throwOnConflict: true,
       }),
-      context: ({ req, res }) => ({ req, res, config: this.options.config }),
+      context: ({ req, res }) => ({
+        req,
+        res,
+        config: this.options.config,
+        orm,
+      }),
     });
 
     // Set GraphQL endpoint
