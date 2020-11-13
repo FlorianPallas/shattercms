@@ -3,23 +3,16 @@ import { ConnectionOptions, createConnection } from 'typeorm';
 import { buildSchema } from 'type-graphql';
 import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
 import { GraphQLSchema } from 'graphql';
-import {
-  mergeSchemas,
-  applySchemaTransforms,
-  RenameRootFields,
-  RenameTypes,
-} from 'graphql-tools';
+import { mergeSchemas } from 'graphql-tools';
 import { Module, Entity } from '@shattercms/types';
 
 export interface GatewayOptions {
   modules: Module[];
   config: { [key: string]: any };
-  addPrefixes: boolean | string[];
 }
 const defaultOptions: GatewayOptions = {
   modules: [],
   config: {},
-  addPrefixes: false,
 };
 
 export class Gateway {
@@ -44,29 +37,7 @@ export class Gateway {
         resolvers: module.resolvers as any,
       });
 
-      /*
-      const addPrefix =
-        // Add prefix if boolean is 'true'
-        this.options.addPrefixes === true ||
-        // Add prefix if array includes the current module
-        (Array.isArray(this.options.addPrefixes) &&
-          this.options.addPrefixes.includes(module.name));
-
-      // Transform schema to prevent collissions
-      if (addPrefix) {
-        schema = applySchemaTransforms(schema, {
-          schema,
-          transforms: [
-            new RenameTypes((name) => `${module.name}${name}`),
-            new RenameRootFields(
-              (_, name) => `${module.name.toLowerCase()}_${name}`
-            ),
-            // TODO: Rename Directives
-          ],
-        });
-      }
-      */
-
+      // Gather schemas, entities and directives
       schemas.push(schema);
       entities.push(...module.entities);
       directives = {
