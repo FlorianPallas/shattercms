@@ -5,9 +5,9 @@ export type Entity = string | Function | EntitySchema<any> | undefined;
 
 export interface Module {
   name: string;
-  entities: Array<Entity>;
-  resolvers: Array<Function>;
-  directives: { [directiveName: string]: typeof SchemaDirectiveVisitor };
+  entities?: Array<Entity>;
+  resolvers?: Array<Function>;
+  directives?: { [directiveName: string]: typeof SchemaDirectiveVisitor };
 }
 
 export interface Context {

@@ -33,17 +33,22 @@ export class Gateway {
 
     for (const module of this.options.modules) {
       // Build schema
-      let schema = await buildSchema({
-        resolvers: module.resolvers as any,
-      });
+      if (module.resolvers) {
+        let schema = await buildSchema({
+          resolvers: module.resolvers as any,
+        });
+        schemas.push(schema);
+      }
 
-      // Gather schemas, entities and directives
-      schemas.push(schema);
-      entities.push(...module.entities);
-      directives = {
-        ...directives,
-        ...module.directives,
-      };
+      // Gather entities
+      if (module.entities) {
+        entities.push(...module.entities);
+      }
+
+      // Gather directives
+      if (module.directives) {
+        directives = Object.assign(module.directives, directives);
+      }
     }
 
     // Register directives
