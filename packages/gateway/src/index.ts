@@ -5,21 +5,32 @@ import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
 import { GraphQLSchema } from 'graphql';
 import { mergeSchemas } from 'graphql-tools';
 import { Module, Entity } from '@shattercms/types';
+import defu from 'defu';
 
 export interface GatewayOptions {
   modules: Module[];
   config: { [key: string]: any };
+  connection: {
+    database?: string;
+    username?: string;
+    password?: string;
+  };
 }
 const defaultOptions: GatewayOptions = {
   modules: [],
   config: {},
+  connection: {
+    database: 'cm',
+    username: 'postgres',
+    password: 'postgres',
+  },
 };
 
 export class Gateway {
   private options: GatewayOptions;
 
   constructor(options: Partial<GatewayOptions>) {
-    this.options = Object.assign(defaultOptions, options);
+    this.options = defu(options as GatewayOptions, defaultOptions);
     this.init();
   }
 
@@ -58,11 +69,9 @@ export class Gateway {
 
     // Create database connection
     const orm = await createConnection({
+      ...this.options.connection,
       name: 'default',
-      database: 'cms',
       type: 'postgres',
-      username: 'postgres',
-      password: 'postgres',
       logging: true,
       synchronize: true,
       entities,
