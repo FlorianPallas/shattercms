@@ -20,7 +20,7 @@ const defaultOptions: GatewayOptions = {
   modules: [],
   config: {},
   connection: {
-    database: 'cm',
+    database: 'cms',
     username: 'postgres',
     password: 'postgres',
   },
