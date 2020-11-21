@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node dist",
-    "dev": "ts-node src",
+    "dev": "nodemon --delay 1000ms dist",
     "build": "tsc",
     "build:watch": "tsc -w"
   }
