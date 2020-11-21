@@ -6,6 +6,8 @@ import { GraphQLSchema } from 'graphql';
 import { mergeSchemas } from 'graphql-tools';
 import { Module, Entity } from '@shattercms/types';
 import defu from 'defu';
+import { authHandler } from './middleware';
+import { Context, AuthHandler } from '@shattercms/types';
 
 export interface GatewayOptions {
   modules: Module[];
@@ -15,6 +17,7 @@ export interface GatewayOptions {
     username?: string;
     password?: string;
   };
+  permissions: { [scope: string]: any };
 }
 const defaultOptions: GatewayOptions = {
   modules: [],
@@ -24,6 +27,7 @@ const defaultOptions: GatewayOptions = {
     username: 'postgres',
     password: 'postgres',
   },
+  permissions: [],
 };
 
 export class Gateway {
@@ -41,12 +45,14 @@ export class Gateway {
     const schemas: GraphQLSchema[] = [];
     const entities: Entity[] = [];
     let directives = {};
+    const authHandlers: AuthHandler[] = [];
 
     for (const module of this.options.modules) {
       // Build schema
       if (module.resolvers) {
         let schema = await buildSchema({
           resolvers: module.resolvers as any,
+          globalMiddlewares: [authHandler],
         });
         schemas.push(schema);
       }
@@ -60,6 +66,11 @@ export class Gateway {
       if (module.directives) {
         directives = Object.assign(module.directives, directives);
       }
+
+      // Gather auth handlers
+      if (module.authHandler) {
+        authHandlers.push(module.authHandler);
+      }
     }
 
     // Register directives
@@ -72,7 +83,7 @@ export class Gateway {
       ...this.options.connection,
       name: 'default',
       type: 'postgres',
-      logging: true,
+      logging: false,
       synchronize: true,
       entities,
     } as ConnectionOptions);
@@ -83,12 +94,28 @@ export class Gateway {
         schemas,
         throwOnConflict: true,
       }),
-      context: ({ req, res }) => ({
-        req,
-        res,
-        config: this.options.config,
-        orm,
-      }),
+      context: ({ req, res }) =>
+        ({
+          req,
+          res,
+          config: this.options.config,
+          orm,
+          auth: {
+            hasPermission: async (resource, context) => {
+              // Get permissions from scope
+              resource.permission = this.options.permissions[resource.scope];
+
+              // Execute all auth handlers
+              for (const handler of authHandlers) {
+                const hasAccess = await handler(resource, context);
+                if (!hasAccess) {
+                  return false;
+                }
+              }
+              return true;
+            },
+          },
+        } as Context),
     });
 
     // Set GraphQL endpoint
