@@ -19,7 +19,6 @@ export class User extends BaseEntity {
   @Column()
   username!: string;
 
-  @Directive('@scope(requires: "user.email")')
   @Field()
   @Column({ unique: true })
   email!: string;
