@@ -21,6 +21,16 @@ class PageInput {
   title: string;
   @Field()
   description: string;
+  @Field(() => Int, { nullable: true })
+  layoutId: number;
+}
+
+@InputType()
+class LayoutInput {
+  @Field()
+  name: string;
+  @Field()
+  description: string;
 }
 
 @Resolver(Page)
@@ -47,6 +57,16 @@ export class PageResolver {
     }).save();
   }
 
+  @Mutation(() => Page)
+  createLayoutPage(@Arg('params') params: LayoutInput) {
+    const title = `#layout/${params.name}`;
+    return Page.create({
+      path: title,
+      title,
+      description: params.description,
+    }).save();
+  }
+
   @Mutation(() => Boolean)
   async deletePage(@Arg('id', () => Int) id: number) {
     try {
@@ -66,5 +86,13 @@ export class PageResolver {
       .loadMany();
     items.sort((a, b) => a.order - b.order);
     return items;
+  }
+
+  @FieldResolver(() => Page, { nullable: true })
+  layout(@Root() page: Page) {
+    if (!page.layoutId) {
+      return;
+    }
+    return Page.findOne(page.layoutId);
   }
 }
