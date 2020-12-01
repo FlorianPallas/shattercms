@@ -1,6 +1,5 @@
-import { Directive, Field, ObjectType } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 import {
-  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -10,7 +9,7 @@ import {
 
 @ObjectType()
 @Entity()
-export class User extends BaseEntity {
+export class User {
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;

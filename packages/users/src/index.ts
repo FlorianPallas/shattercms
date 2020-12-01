@@ -1,5 +1,4 @@
 import { Module } from '@shattercms/types';
-
 import { User } from './entities/User';
 import { UserResolver } from './resolvers/user';
 

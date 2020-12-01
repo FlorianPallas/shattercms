@@ -13,9 +13,10 @@ import {
 import argon2 from 'argon2';
 import { Context } from '@shattercms/types';
 import * as jwt from '../jwt';
+import { getRepository } from 'typeorm';
 
 @InputType()
-class RegisterInput {
+class RegisterUserInput {
   @Field()
   username: string;
   @Field()
@@ -25,7 +26,7 @@ class RegisterInput {
 }
 
 @InputType()
-class LoginInput {
+class LoginUserInput {
   @Field()
   email: string;
   @Field()
@@ -33,7 +34,7 @@ class LoginInput {
 }
 
 @ObjectType()
-class LoginOutput {
+class Session {
   @Field()
   accessToken: string;
   @Field()
@@ -42,21 +43,23 @@ class LoginOutput {
 
 @Resolver()
 export class UserResolver {
+  constructor(protected repository = getRepository(User)) {}
+
   @Query(() => [User])
-  users() {
-    return User.find();
+  user_getAll() {
+    return this.repository.find();
   }
 
   @Query(() => User, { nullable: true })
-  user(@Arg('id', () => Int) id: number) {
-    return User.findOne(id);
+  user_get(@Arg('id', () => Int) id: number) {
+    return this.repository.findOne(id);
   }
 
-  @Mutation(() => LoginOutput)
-  async register(
-    @Arg('params') params: RegisterInput,
+  @Mutation(() => Session)
+  async user_register(
+    @Arg('params') params: RegisterUserInput,
     @Ctx() { config }: Context
-  ): Promise<LoginOutput> {
+  ): Promise<Session> {
     // Validate password
     if (params.username.length <= 2) {
       throw new Error('length of username must be greater than 2');
@@ -67,11 +70,12 @@ export class UserResolver {
 
     // Hash password and save user
     const hash = await argon2.hash(params.password);
-    const user = await User.create({
+    const userRaw = this.repository.create({
       username: params.username,
       email: params.email,
       password: hash,
-    }).save();
+    });
+    const user = await this.repository.save(userRaw);
 
     // Handle session
     const payload = {
@@ -80,11 +84,11 @@ export class UserResolver {
     };
     const accessToken = jwt.sign(config, payload, 'access');
     if (!accessToken) {
-      throw new Error('failed to create session');
+      throw new Error('Failed to create session');
     }
     const refreshToken = jwt.sign(config, payload, 'refresh');
     if (!refreshToken) {
-      throw new Error('failed to create session');
+      throw new Error('Failed to create session');
     }
 
     return {
@@ -93,18 +97,18 @@ export class UserResolver {
     };
   }
 
-  @Mutation(() => LoginOutput)
-  async login(
-    @Arg('params') params: LoginInput,
+  @Mutation(() => Session)
+  async user_login(
+    @Arg('params') params: LoginUserInput,
     @Ctx() { config }: Context
-  ): Promise<LoginOutput> {
-    const user = await User.findOne({ email: params.email });
+  ): Promise<Session> {
+    const user = await this.repository.findOne({ email: params.email });
     if (!user) {
-      throw new Error('email or password incorrect');
+      throw new Error('E-Mail or Password incorrect');
     }
     const valid = await argon2.verify(user.password, params.password);
     if (!valid) {
-      throw new Error('email or password incorrect');
+      throw new Error('E-Mail or Password incorrect');
     }
 
     // Handle session
@@ -114,11 +118,11 @@ export class UserResolver {
     };
     const accessToken = jwt.sign(config, payload, 'access');
     if (!accessToken) {
-      throw new Error('failed to create session');
+      throw new Error('Failed to create session');
     }
     const refreshToken = jwt.sign(config, payload, 'refresh');
     if (!refreshToken) {
-      throw new Error('failed to create session');
+      throw new Error('Failed to create session');
     }
 
     return {
@@ -127,18 +131,18 @@ export class UserResolver {
     };
   }
 
-  @Mutation(() => LoginOutput)
-  async refresh(
+  @Mutation(() => Session)
+  async user_refresh(
     @Arg('refreshToken') token: string,
     @Ctx() { config }: Context
-  ): Promise<LoginOutput> {
+  ): Promise<Session> {
     const data = jwt.verify(config, token, 'refresh');
     if (!data || !data.userId) {
-      throw new Error('failed to validate session');
+      throw new Error('Failed to validate session');
     }
-    const user = await User.findOne({ id: data.userId });
+    const user = await this.repository.findOne({ id: data.userId });
     if (!user) {
-      throw new Error('session is invalid');
+      throw new Error('Session is invalid');
     }
 
     // Handle session
@@ -148,11 +152,11 @@ export class UserResolver {
     };
     const accessToken = jwt.sign(config, payload, 'access');
     if (!accessToken) {
-      throw new Error('failed to create session');
+      throw new Error('Failed to create session');
     }
     const refreshToken = jwt.sign(config, payload, 'refresh');
     if (!refreshToken) {
-      throw new Error('failed to create session');
+      throw new Error('Failed to create session');
     }
 
     return {
