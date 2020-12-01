@@ -1,11 +1,9 @@
 import express from 'express';
+import defu from 'defu';
 import { ConnectionOptions, createConnection } from 'typeorm';
 import { buildSchema } from 'type-graphql';
 import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
-import { GraphQLSchema } from 'graphql';
-import { mergeSchemas } from 'graphql-tools';
 import { Module, Entity, DeepPartial } from '@shattercms/types';
-import defu from 'defu';
 import { authHandler } from './middleware';
 import { Context, AuthHandler } from '@shattercms/types';
 
@@ -46,7 +44,9 @@ export class Gateway {
   private options: GatewayOptions;
 
   constructor(
-    options: DeepPartial<GatewayOptions> | Pick<GatewayOptions, 'config'>
+    options:
+      | DeepPartial<GatewayOptions>
+      | Pick<GatewayOptions, 'config' & 'permissions'>
   ) {
     this.options = defu(options as GatewayOptions, defaultOptions);
     this.init();
@@ -56,41 +56,25 @@ export class Gateway {
     const app = express();
 
     // Build modules
-    const schemas: GraphQLSchema[] = [];
+    const resolvers: Function[] = [];
     const entities: Entity[] = [];
     let directives = {};
     const authHandlers: AuthHandler[] = [];
 
     for (const module of this.options.modules) {
-      // Build schema
       if (module.resolvers) {
-        let schema = await buildSchema({
-          resolvers: module.resolvers as any,
-          globalMiddlewares: [authHandler],
-        });
-        schemas.push(schema);
+        resolvers.push(...module.resolvers);
       }
-
-      // Gather entities
       if (module.entities) {
         entities.push(...module.entities);
       }
-
-      // Gather directives
       if (module.directives) {
         directives = Object.assign(module.directives, directives);
       }
-
-      // Gather auth handlers
       if (module.authHandler) {
         authHandlers.push(module.authHandler);
       }
     }
-
-    // Register directives
-    schemas.forEach((schema) => {
-      SchemaDirectiveVisitor.visitSchemaDirectives(schema, directives);
-    });
 
     // Create database connection
     const orm = await createConnection({
@@ -101,12 +85,16 @@ export class Gateway {
       entities,
     } as ConnectionOptions);
 
+    // Build schema
+    const schema = await buildSchema({
+      resolvers: resolvers as any,
+      globalMiddlewares: [authHandler],
+    });
+    SchemaDirectiveVisitor.visitSchemaDirectives(schema, directives);
+
     // Setup Apollo
     const apolloServer = new ApolloServer({
-      schema: mergeSchemas({
-        schemas,
-        throwOnConflict: true,
-      }),
+      schema,
       context: ({ req, res }) =>
         ({
           req,
