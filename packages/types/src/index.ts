@@ -2,6 +2,12 @@ import { Connection, EntitySchema } from 'typeorm';
 import { SchemaDirectiveVisitor } from 'apollo-server-express';
 import { Request, Response } from 'express';
 
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends Array<infer R>
+    ? Array<DeepPartial<R>>
+    : DeepPartial<T[K]>;
+};
+
 export type Entity = string | Function | EntitySchema<any> | undefined;
 
 export type AuthHandler = (
