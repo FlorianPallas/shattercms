@@ -10,13 +10,13 @@ import {
   Root,
 } from 'type-graphql';
 import { Shard } from '../entities/Shard';
-import { Page } from '../entities/Page';
-import { getManager } from 'typeorm';
+import { getManager, getRepository } from 'typeorm';
+import { ShardContainer } from '../entities/ShardContainer';
 
 @InputType()
-class ShardInput {
+class CreateShardInput {
   @Field(() => Int)
-  pageId: number;
+  containerId: number;
   @Field()
   type: string;
   @Field({ nullable: true })
@@ -26,7 +26,7 @@ class ShardInput {
 }
 
 @InputType()
-class ShardUpdateInput {
+class UpdateShardInput {
   @Field({ nullable: true })
   type?: string;
   @Field({ nullable: true })
@@ -35,22 +35,22 @@ class ShardUpdateInput {
 
 @Resolver(Shard)
 export class ShardResolver {
+  constructor(protected repository = getRepository(Shard)) {}
+
   @Query(() => [Shard])
-  shards() {
-    return Shard.find();
+  shard_getAll() {
+    return this.repository.find();
   }
 
   @Query(() => Shard, { nullable: true })
-  shard(@Arg('id', () => Int) id: number) {
-    return Shard.findOne(id);
+  shard_get(@Arg('id', () => Int) id: number) {
+    return this.repository.findOne(id);
   }
 
   @Mutation(() => Shard)
-  async createShard(@Arg('params') params: ShardInput): Promise<Shard> {
+  async shard_create(@Arg('params') params: CreateShardInput): Promise<Shard> {
     // Create shard
-    const shard = Shard.create({
-      ...params,
-    });
+    const shard = this.repository.create(params);
 
     // Start transaction
     return getManager().transaction<Shard>(
@@ -62,7 +62,9 @@ export class ShardResolver {
           .set({
             order: () => '"order" + 1',
           })
-          .where('pageId = :pageid', { pageid: shard.pageId })
+          .where('containerId = :containerId', {
+            containerId: shard.containerId,
+          })
           .andWhere('order >= :order', { order: shard.order })
           .execute();
 
@@ -73,11 +75,11 @@ export class ShardResolver {
   }
 
   @Mutation(() => Boolean)
-  async deleteShard(@Arg('id', () => Int) id: number): Promise<boolean> {
+  async shard_delete(@Arg('id', () => Int) id: number): Promise<boolean> {
     // Find shard
-    const shard = await Shard.findOne({ id });
+    const shard = await this.repository.findOne({ id });
     if (!shard) {
-      throw new Error('shard not found');
+      throw new Error('Shard not found');
     }
 
     // Start transaction
@@ -89,7 +91,7 @@ export class ShardResolver {
         .set({
           order: () => '"order" - 1',
         })
-        .where('pageId = :pageid', { pageid: shard.pageId })
+        .where('containerId = :containerId', { containerId: shard.containerId })
         .andWhere('order >= :order', { order: shard.order })
         .execute();
 
@@ -101,24 +103,24 @@ export class ShardResolver {
   }
 
   @Mutation(() => Boolean)
-  async updateShard(
+  async shard_update(
     @Arg('id', () => Int) id: number,
-    @Arg('params') params: ShardUpdateInput
+    @Arg('params') params: UpdateShardInput
   ): Promise<boolean> {
     // Update shard
-    await Shard.update({ id }, { ...params });
+    await this.repository.update({ id }, { ...params });
     return true;
   }
 
   @Mutation(() => Boolean)
-  async reorderShard(
+  async shard_reorder(
     @Arg('id', () => Int) id: number,
     @Arg('order', () => Int) newOrder: number
   ): Promise<boolean> {
     // Find shard
-    const shard = await Shard.findOne({ id });
+    const shard = await this.repository.findOne({ id });
     if (!shard) {
-      throw new Error('shard not found');
+      throw new Error('Shard not found');
     }
     // Return if the shard is already at the correct spot
     if (shard.order === newOrder) {
@@ -148,7 +150,9 @@ export class ShardResolver {
           .andWhere('order < :order', { order: shard.order });
       }
       await query
-        .andWhere('pageId = :pageid', { pageid: shard.pageId })
+        .andWhere('containerId = :containerId', {
+          containerId: shard.containerId,
+        })
         .execute();
 
       // Update shard
@@ -159,8 +163,8 @@ export class ShardResolver {
     return true;
   }
 
-  @FieldResolver(() => Page)
-  page(@Root() shard: Shard) {
-    return Page.findOne(shard.pageId);
+  @FieldResolver(() => ShardContainer)
+  container(@Root() shard: Shard) {
+    return getRepository(ShardContainer).findOne(shard.containerId);
   }
 }

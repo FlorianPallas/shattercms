@@ -6,20 +6,14 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Page } from './Page';
+import { ShardContainer } from './ShardContainer';
 
 @ObjectType()
 @Entity()
-export class Shard extends BaseEntity {
+export class Shard {
   @Field(() => Int)
   @PrimaryGeneratedColumn()
   id!: number;
-
-  @Column()
-  pageId: number;
-  @Field(() => Page)
-  @ManyToOne(() => Page, (page) => page.shards)
-  page: Page;
 
   @Field()
   @Column()
@@ -32,4 +26,12 @@ export class Shard extends BaseEntity {
   @Field({ nullable: true })
   @Column({ nullable: true })
   data: string;
+
+  @Column()
+  containerId: number;
+  @Field(() => ShardContainer)
+  @ManyToOne(() => ShardContainer, (container) => container.shards, {
+    onDelete: 'CASCADE',
+  })
+  container: ShardContainer;
 }

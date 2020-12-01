@@ -9,12 +9,13 @@ import {
   Resolver,
   Root,
 } from 'type-graphql';
-import { getManager } from 'typeorm';
+import { getRepository } from 'typeorm';
+import { Layout } from '../entities/Layout';
 import { Page } from '../entities/Page';
-import { Shard } from '../entities/Shard';
+import { ShardContainerResolver } from './shardContainer';
 
 @InputType()
-class PageInput {
+class CreatePageInput {
   @Field()
   path: string;
   @Field()
@@ -22,70 +23,61 @@ class PageInput {
   @Field()
   description: string;
   @Field(() => Int, { nullable: true })
-  layoutId: number;
+  layoutId?: number;
 }
 
 @InputType()
-class LayoutInput {
-  @Field()
-  name: string;
-  @Field()
-  description: string;
+class UpdatePageInput {
+  @Field({ nullable: true })
+  path?: string;
+  @Field({ nullable: true })
+  title?: string;
+  @Field({ nullable: true })
+  description?: string;
+  @Field(() => Int, { nullable: true })
+  layoutId?: number;
 }
 
 @Resolver(Page)
-export class PageResolver {
+export class PageResolver extends ShardContainerResolver {
+  constructor(protected repository = getRepository(Page)) {
+    super();
+  }
+
   @Query(() => [Page])
-  pages() {
-    return Page.find();
+  page_getAll() {
+    return this.repository.find();
   }
 
   @Query(() => Page, { nullable: true })
-  page(@Arg('id', () => Int) id: number) {
-    return Page.findOne(id);
+  page_get(@Arg('id', () => Int) id: number) {
+    return this.repository.findOne(id);
   }
 
   @Query(() => Page, { nullable: true })
-  async pageAt(@Arg('path', () => String) path: string) {
-    return Page.findOne({ where: { path } });
+  async page_at(@Arg('path', () => String) path: string) {
+    return this.repository.findOne({ where: { path } });
   }
 
   @Mutation(() => Page)
-  createPage(@Arg('params') params: PageInput) {
-    return Page.create({
-      ...params,
-    }).save();
-  }
-
-  @Mutation(() => Page)
-  createLayoutPage(@Arg('params') params: LayoutInput) {
-    const title = `#layout/${params.name}`;
-    return Page.create({
-      path: title,
-      title,
-      description: params.description,
-    }).save();
+  page_create(@Arg('params') params: CreatePageInput) {
+    const page = this.repository.create(params);
+    return this.repository.save(page);
   }
 
   @Mutation(() => Boolean)
-  async deletePage(@Arg('id', () => Int) id: number) {
-    try {
-      await Page.delete(id);
-    } catch {
-      return false;
-    }
+  async page_update(
+    @Arg('id', () => Int) id: number,
+    @Arg('params') params: UpdatePageInput
+  ) {
+    await this.repository.update(id, params);
     return true;
   }
 
-  @FieldResolver()
-  async shards(@Root() shards: Shard[]): Promise<Shard[]> {
-    const items: Shard[] = await getManager()
-      .createQueryBuilder()
-      .relation(Page, 'shards')
-      .of(shards)
-      .loadMany();
-    items.sort((a, b) => a.order - b.order);
-    return items;
+  @Mutation(() => Boolean)
+  async page_delete(@Arg('id', () => Int) id: number) {
+    await this.repository.delete(id);
+    return true;
   }
 
   @FieldResolver(() => Page, { nullable: true })
@@ -93,6 +85,6 @@ export class PageResolver {
     if (!page.layoutId) {
       return;
     }
-    return Page.findOne(page.layoutId);
+    return getRepository(Layout).findOne(page.layoutId);
   }
 }

@@ -1,21 +1,11 @@
-import { Field, Int, ObjectType } from 'type-graphql';
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Shard } from './Shard';
+import { Field, ObjectType } from 'type-graphql';
+import { Column, ChildEntity, ManyToOne } from 'typeorm';
+import { ShardContainer } from './ShardContainer';
+import { Layout } from './Layout';
 
 @ObjectType()
-@Entity()
-export class Page extends BaseEntity {
-  @Field(() => Int)
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+@ChildEntity()
+export class Page extends ShardContainer {
   @Field()
   @Column({ unique: true })
   path!: string;
@@ -28,13 +18,9 @@ export class Page extends BaseEntity {
   @Column()
   description!: string;
 
-  @Field(() => [Shard])
-  @OneToMany(() => Shard, (shard) => shard.page)
-  shards: Shard[];
-
   @Column({ nullable: true })
   layoutId: number;
-  @Field(() => Page, { nullable: true })
-  @ManyToOne(() => Page, { nullable: true })
-  layout: Page;
+  @Field(() => Layout, { nullable: true })
+  @ManyToOne(() => Layout, { nullable: true })
+  layout: Layout;
 }
