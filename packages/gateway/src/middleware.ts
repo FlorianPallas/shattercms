@@ -11,13 +11,13 @@ export const authHandler: MiddlewareFn<Context> = async (
   // Root Path (Query, Mutation, ...)
   if (!node.prev && node.typename) {
     const type = node.typename?.toLowerCase();
-    const action = node.key.toString().toLowerCase();
+    const action = node.key.toString();
     stages = [type, action];
   }
 
   // Regular Paths (user.id, user.posts.title, ...)
   if (node.prev) {
-    stages.unshift(node.key.toString().toLowerCase());
+    stages.unshift(node.key.toString());
   }
   while (node.prev) {
     if (!node.prev.typename && node.typename) {
@@ -26,7 +26,7 @@ export const authHandler: MiddlewareFn<Context> = async (
     }
     node = node.prev;
     if (node.typename) {
-      stages.unshift(node.key.toString().toLowerCase());
+      stages.unshift(node.key.toString());
     }
   }
 
