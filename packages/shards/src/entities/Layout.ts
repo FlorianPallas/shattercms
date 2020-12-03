@@ -1,4 +1,4 @@
-import { Field, ObjectType } from 'type-graphql';
+import { Field, Int, ObjectType } from 'type-graphql';
 import { ChildEntity, Column } from 'typeorm';
 import { ShardContainer } from './ShardContainer';
 
@@ -13,7 +13,7 @@ export class Layout extends ShardContainer {
   @Column()
   description!: string;
 
-  @Field({ defaultValue: 0 })
+  @Field(() => Int)
   @Column({ default: 0 })
   bodyIndex!: number;
 }
