@@ -17,6 +17,7 @@ export interface GatewayOptions {
     port: number;
   };
   connection: {
+    url?: string;
     database: string;
     username: string;
     password: string;
