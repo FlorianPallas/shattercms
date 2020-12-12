@@ -22,6 +22,7 @@ export interface GatewayOptions {
     username: string;
     password: string;
     logging: boolean;
+    synchronize: boolean;
   };
   permissions: { [scope: string]: any };
 }
@@ -37,6 +38,7 @@ const defaultOptions: GatewayOptions = {
     username: 'postgres',
     password: 'postgres',
     logging: false,
+    synchronize: false,
   },
   permissions: [],
 };
@@ -82,7 +84,6 @@ export class Gateway {
       ...this.options.connection,
       name: 'default',
       type: 'postgres',
-      synchronize: true,
       entities,
     } as ConnectionOptions);
 
