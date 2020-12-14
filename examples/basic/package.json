@@ -8,5 +8,8 @@
     "dev": "nodemon --delay 1000ms dist",
     "build": "tsc",
     "build:watch": "tsc -w"
+  },
+  "dependencies": {
+    "@shattercms/gateway": "^0.0.0"
   }
 }

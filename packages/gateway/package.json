@@ -14,6 +14,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@shattercms/types": "^0.0.0",
     "@types/express": "^4.17.8",
     "@types/node": "^14.14.3",
     "nodemon": "^2.0.6",
