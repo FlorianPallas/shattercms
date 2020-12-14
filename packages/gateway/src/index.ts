@@ -23,6 +23,7 @@ export interface GatewayOptions {
     password: string;
     logging: boolean;
     synchronize: boolean;
+    migrations?: (string | Function)[];
   };
   permissions: { [scope: string]: any };
 }
@@ -39,6 +40,7 @@ const defaultOptions: GatewayOptions = {
     password: 'postgres',
     logging: false,
     synchronize: false,
+    migrations: [],
   },
   permissions: [],
 };
@@ -86,6 +88,7 @@ export class Gateway {
       type: 'postgres',
       entities,
     } as ConnectionOptions);
+    orm.runMigrations();
 
     // Build schema
     const schema = await buildSchema({
