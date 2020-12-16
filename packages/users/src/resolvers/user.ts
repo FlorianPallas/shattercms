@@ -12,7 +12,7 @@ import {
 } from 'type-graphql';
 import argon2 from 'argon2';
 import { Context } from '@shattercms/types';
-import * as jwt from '../jwt';
+import * as jwt from '../auth/jwt';
 import { getRepository } from 'typeorm';
 
 @InputType()

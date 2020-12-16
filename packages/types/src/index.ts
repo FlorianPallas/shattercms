@@ -13,7 +13,7 @@ export type Entity = string | Function | EntitySchema<any> | undefined;
 export type AuthHandler = (
   resource: { scope: string; permission: any; data: any },
   context: Context
-) => Promise<boolean>;
+) => Promise<boolean | undefined>;
 
 export interface Context {
   // Functional
@@ -40,5 +40,5 @@ export interface Module {
   directives?: { [directiveName: string]: typeof SchemaDirectiveVisitor };
 
   // Authentication
-  authHandler?: AuthHandler;
+  authHandlers?: AuthHandler[];
 }

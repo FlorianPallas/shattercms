@@ -76,8 +76,8 @@ export class Gateway {
       if (module.directives) {
         directives = Object.assign(module.directives, directives);
       }
-      if (module.authHandler) {
-        authHandlers.push(module.authHandler);
+      if (module.authHandlers) {
+        authHandlers.push(...module.authHandlers);
       }
     }
 
@@ -114,11 +114,13 @@ export class Gateway {
               // Execute all auth handlers
               for (const handler of authHandlers) {
                 const hasAccess = await handler(resource, context);
-                if (!hasAccess) {
-                  return false;
+                if (hasAccess !== undefined) {
+                  return hasAccess;
                 }
               }
-              return true;
+
+              // Default response for unhandled cases
+              return this.options.permissions;
             },
           },
         } as Context),

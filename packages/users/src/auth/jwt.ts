@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { ModuleConfig } from './';
+import { ModuleConfig } from '..';
 
 export const sign = (
   config: Partial<ModuleConfig> = {},
