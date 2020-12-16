@@ -1,1 +1,18 @@
-{}
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "CommonJS",
+    "declaration": true,
+    "skipLibCheck": true,
+
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    "strict": true,
+    "strictPropertyInitialization": false,
+
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  }
+}

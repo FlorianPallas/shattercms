@@ -1,9 +1,30 @@
 {
   "name": "@shattercms/shards",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "ShatterCMS submodule for handling data-driven, block-based web content.",
+  "keywords": [
+    "shattercms"
+  ],
+  "homepage": "https://github.com/FlorianPallas/shattercms/blob/main/packages/shards/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FlorianPallas/shattercms.git",
+    "directory": "packages/shards"
+  },
+  "bugs": {
+    "url": "https://github.com/FlorianPallas/shattercms/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "email": "mail@pallas-florian.de",
+    "name": "Florian Pallas",
+    "url": "https://www.pallas-florian.de"
+  },
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc -w"
@@ -16,7 +37,7 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
-    "@shattercms/types": "^0.0.0",
+    "@shattercms/types": "^0.1.0",
     "type-graphql": "^1.1.0",
     "typeorm": "^0.2.28"
   }

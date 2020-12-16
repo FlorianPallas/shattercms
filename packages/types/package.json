@@ -1,9 +1,30 @@
 {
   "name": "@shattercms/types",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "ShatterCMS submodule, providing common type definitions for other submodules.",
+  "keywords": [
+    "shattercms"
+  ],
+  "homepage": "https://github.com/FlorianPallas/shattercms/blob/main/packages/types/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FlorianPallas/shattercms.git",
+    "directory": "packages/types"
+  },
+  "bugs": {
+    "url": "https://github.com/FlorianPallas/shattercms/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "email": "mail@pallas-florian.de",
+    "name": "Florian Pallas",
+    "url": "https://www.pallas-florian.de"
+  },
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
-  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc -w"
@@ -13,9 +34,8 @@
   },
   "devDependencies": {
     "@types/node": "^14.14.3",
+    "apollo-server-express": "^2.19.0",
     "typeorm": "^0.2.29",
-    "typescript": "^4.0.3",
-    "apollo-server-express": "^2.19.0"
-  },
-  "dependencies": {}
+    "typescript": "^4.0.3"
+  }
 }

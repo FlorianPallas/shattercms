@@ -3,5 +3,10 @@
   "useWorkspaces": true,
   "conventionalCommits": true,
   "packages": ["packages/*"],
-  "version": "independent"
+  "version": "independent",
+  "command": {
+    "version": {
+      "message": "chore(release): publish new version"
+    }
+  }
 }
