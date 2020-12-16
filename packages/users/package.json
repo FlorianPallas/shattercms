@@ -1,0 +1,47 @@
+{
+  "name": "@shattercms/users",
+  "version": "0.1.0",
+  "description": "ShatterCMS submodule for handling basic user authentication and storage using scopes.",
+  "keywords": [
+    "shattercms"
+  ],
+  "homepage": "https://github.com/FlorianPallas/shattercms/blob/main/packages/users/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FlorianPallas/shattercms.git",
+    "directory": "packages/users"
+  },
+  "bugs": {
+    "url": "https://github.com/FlorianPallas/shattercms/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "email": "mail@pallas-florian.de",
+    "name": "Florian Pallas",
+    "url": "https://www.pallas-florian.de"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc -w"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/node": "^14.14.3",
+    "typescript": "^4.0.3"
+  },
+  "dependencies": {
+    "@shattercms/types": "^0.1.0",
+    "argon2": "^0.27.0",
+    "jsonwebtoken": "^8.5.1",
+    "type-graphql": "^1.1.0",
+    "typeorm": "^0.2.28"
+  }
+}
