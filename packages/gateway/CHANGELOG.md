@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.1](https://github.com/FlorianPallas/shattercms/compare/@shattercms/gateway@0.1.0...@shattercms/gateway@0.1.1) (2020-12-17)
+
+
+### Bug Fixes
+
+* **deps:** move types module from dependencies ([000872d](https://github.com/FlorianPallas/shattercms/commit/000872dd79d43d51d426d965111c97e0300868d2)), closes [#41](https://github.com/FlorianPallas/shattercms/issues/41)
+
+
+
+
+
 # 0.1.0 (2020-12-16)
 
 
