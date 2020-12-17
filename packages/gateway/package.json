@@ -1,6 +1,6 @@
 {
   "name": "@shattercms/gateway",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The core of ShatterCMS, combining all submodules to serve a single, powerful GraphQL endpoint.",
   "keywords": [
     "shattercms",
