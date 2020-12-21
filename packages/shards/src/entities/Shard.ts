@@ -25,7 +25,7 @@ export class Shard {
 
   @Field({ nullable: true })
   @Column({ nullable: true })
-  data: string;
+  data?: string;
 
   @Column()
   containerId: number;

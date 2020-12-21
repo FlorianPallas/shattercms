@@ -113,6 +113,43 @@ export class ShardResolver {
   }
 
   @Mutation(() => Boolean)
+  async shard_updateData(
+    @Arg('id', () => Int) id: number,
+    @Arg('data') data: string
+  ): Promise<boolean> {
+    // Start transaction
+    await getManager().transaction(async (transactionalEntityManager) => {
+      // Shift other shards accordingly
+      const repo = await transactionalEntityManager.getRepository(Shard);
+
+      // Get shard data
+      const shard = await repo.findOne(id);
+      if (!shard) {
+        throw new Error('Shard not found');
+      }
+
+      // Parse data
+      let shardData = {};
+      if (shard.data) {
+        shardData = JSON.parse(shard.data);
+      }
+      const updateData = JSON.parse(data);
+
+      // Apply changes
+      const newData = {
+        ...shardData,
+        ...updateData,
+      };
+
+      // Save data
+      shard.data = JSON.stringify(newData);
+      await repo.save(shard);
+    });
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
   async shard_reorder(
     @Arg('id', () => Int) id: number,
     @Arg('order', () => Int) newOrder: number

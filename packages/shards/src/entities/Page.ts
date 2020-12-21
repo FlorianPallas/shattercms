@@ -19,8 +19,8 @@ export class Page extends ShardContainer {
   description!: string;
 
   @Column({ nullable: true })
-  layoutId: number;
+  layoutId?: number;
   @Field(() => Layout, { nullable: true })
   @ManyToOne(() => Layout, { nullable: true })
-  layout: Layout;
+  layout?: Layout;
 }
