@@ -6,6 +6,7 @@ import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
 import { Module, Entity, DeepPartial } from '@shattercms/types';
 import { authHandler } from './middleware';
 import { Context, AuthHandler } from '@shattercms/types';
+import { CorsOptions, CorsOptionsDelegate } from 'cors';
 
 export interface GatewayOptions {
   modules: Module[];
@@ -15,6 +16,7 @@ export interface GatewayOptions {
   server: {
     host: string;
     port: number;
+    cors?: CorsOptions | CorsOptionsDelegate | boolean;
   };
   connection: {
     url?: string;
@@ -33,6 +35,11 @@ const defaultOptions: GatewayOptions = {
   server: {
     host: 'localhost',
     port: 4000,
+    cors: {
+      origin: '*',
+      methods: ['GET', 'POST'],
+      allowedHeaders: 'content-type, authorization',
+    },
   },
   connection: {
     database: 'cms',
@@ -127,7 +134,7 @@ export class Gateway {
     });
 
     // Set GraphQL endpoint
-    apolloServer.applyMiddleware({ app });
+    apolloServer.applyMiddleware({ app, cors: this.options.server.cors });
 
     // Start listening
     const host = this.options.server.host;
