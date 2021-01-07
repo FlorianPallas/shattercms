@@ -27,6 +27,9 @@ export interface GatewayOptions {
     synchronize: boolean;
     migrations?: (string | Function)[];
   };
+  auth: {
+    defaultResponse: boolean;
+  };
   permissions: { [scope: string]: any };
 }
 const defaultOptions: GatewayOptions = {
@@ -48,6 +51,9 @@ const defaultOptions: GatewayOptions = {
     logging: false,
     synchronize: false,
     migrations: [],
+  },
+  auth: {
+    defaultResponse: false,
   },
   permissions: [],
 };
@@ -121,13 +127,16 @@ export class Gateway {
               // Execute all auth handlers
               for (const handler of authHandlers) {
                 const hasAccess = await handler(resource, context);
-                if (hasAccess !== undefined) {
+                if (
+                  hasAccess !== undefined &&
+                  hasAccess === this.options.auth.defaultResponse
+                ) {
                   return hasAccess;
                 }
               }
 
-              // Default response for unhandled cases
-              return this.options.permissions;
+              // Deny requests by default
+              return this.options.auth.defaultResponse;
             },
           },
         } as Context),
