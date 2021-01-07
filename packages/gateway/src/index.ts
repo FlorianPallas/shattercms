@@ -127,10 +127,7 @@ export class Gateway {
               // Execute all auth handlers
               for (const handler of authHandlers) {
                 const hasAccess = await handler(resource, context);
-                if (
-                  hasAccess !== undefined &&
-                  hasAccess === this.options.auth.defaultResponse
-                ) {
+                if (hasAccess !== undefined) {
                   return hasAccess;
                 }
               }
