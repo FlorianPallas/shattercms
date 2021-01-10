@@ -136,10 +136,7 @@ export class ShardResolver {
       const updateData = JSON.parse(data);
 
       // Apply changes
-      const newData = {
-        ...shardData,
-        ...updateData,
-      };
+      const newData = deepApply(shardData, updateData);
 
       // Save data
       shard.data = JSON.stringify(newData);
@@ -205,3 +202,27 @@ export class ShardResolver {
     return getRepository(ShardContainer).findOne(shard.containerId);
   }
 }
+
+const deepApply = (data: any, changes: any) => {
+  Object.keys(changes).forEach((i) => {
+    // Replace whole array if size has shrunk
+    // All item data needs to be sent in this case
+    if (
+      Array.isArray(data[i]) &&
+      Array.isArray(changes[i]) &&
+      changes[i].length < data[i].length
+    ) {
+      data[i] = changes[i];
+      return;
+    }
+
+    // Apply nested changes
+    if (typeof data[i] === 'object' && typeof changes[i] === 'object') {
+      data[i] = deepApply(data[i], changes[i]);
+      return;
+    }
+
+    data[i] = changes[i];
+  });
+  return data;
+};
